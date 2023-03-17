@@ -22,6 +22,9 @@ import "../features/MetaTransactionsFeature.sol";
 import "../features/NativeOrdersFeature.sol";
 import "../features/OtcOrdersFeature.sol";
 import "./InitialMigration.sol";
+import "../features/nft_orders/ERC721OrdersFeature.sol";
+import "../features/nft_orders/ERC1155OrdersFeature.sol";
+import "../features/ERC165Feature.sol";
 
 /// @dev A contract for deploying and configuring the full ZeroEx contract.
 contract FullMigration {
@@ -33,6 +36,9 @@ contract FullMigration {
         MetaTransactionsFeature metaTransactions;
         NativeOrdersFeature nativeOrders;
         OtcOrdersFeature otcOrders;
+        ERC721OrdersFeature erc721Orders;
+        ERC1155OrdersFeature erc1155Orders;
+        ERC165Feature erc165;
     }
 
     /// @dev Parameters needed to initialize features.
@@ -111,6 +117,7 @@ contract FullMigration {
     /// @param migrateOpts Parameters needed to initialize features.
     function _addFeatures(ZeroEx zeroEx, Features memory features, MigrateOpts memory migrateOpts) private {
         IOwnableFeature ownable = IOwnableFeature(address(zeroEx));
+        ISimpleFunctionRegistryFeature registry = ISimpleFunctionRegistryFeature(address(zeroEx));
         // TransformERC20Feature
         {
             // Register the feature.
@@ -146,6 +153,31 @@ contract FullMigration {
                 abi.encodeWithSelector(OtcOrdersFeature.migrate.selector),
                 address(this)
             );
+        }
+        // ERC721OrdersFeature
+        {
+            // Register the feature.
+            ownable.migrate(
+                address(features.erc721Orders),
+                abi.encodeWithSelector(ERC721OrdersFeature.migrate.selector),
+                address(this)
+            );
+        }
+        // ERC1155OrdersFeature
+        {
+            // Register the feature.
+            ownable.migrate(
+                address(features.erc1155Orders),
+                abi.encodeWithSelector(ERC1155OrdersFeature.migrate.selector),
+                address(this)
+            );
+        }
+        // ERC165Feature
+        {
+            // Register the feature.
+            registry.extend(
+            features.erc165.supportInterface.selector, address(features.erc165)
+        );
         }
     }
 }
