@@ -1,7 +1,7 @@
 import { SupportedProvider } from '@0x/subproviders';
 import { SimpleContractArtifact } from '@0x/types';
 import { NULL_ADDRESS } from '@0x/utils';
-import { TxData } from 'ethereum-types';
+import {ContractArtifact, TxData} from 'ethereum-types';
 import * as _ from 'lodash';
 
 import { artifacts } from './artifacts';
@@ -18,6 +18,25 @@ import {
     TransformERC20FeatureContract,
     ZeroExContract,
 } from './wrappers';
+import {
+    ERC721OrdersFeatureContract
+} from "../test/generated-wrappers/erc721_orders_feature";
+import {
+    ERC1155OrdersFeatureContract
+} from "../test/generated-wrappers/erc1155_orders_feature";
+import {
+    ERC165FeatureContract
+} from "../test/generated-wrappers/erc165_feature";
+import
+    * as ERC721OrdersFeatureArtifacts
+ from "../test/generated-artifacts/ERC721OrdersFeature.json";
+import
+    * as ERC1155OrdersFeatureArtifacts
+ from "../test/generated-artifacts/ERC1155OrdersFeature.json";
+import
+    * as ERC165FeatureArtifacts
+ from "../test/generated-artifacts/ERC165Feature.json";
+
 
 /**
  * Addresses of minimum features for a deployment of the Exchange Proxy.
@@ -113,6 +132,9 @@ export interface FullFeatures extends BootstrapFeatures {
     metaTransactions: string;
     nativeOrders: string;
     otcOrders: string;
+    erc721Orders: string;
+    erc1155Orders: string;
+    erc165: string;
 }
 
 /**
@@ -124,6 +146,9 @@ export interface FullFeatureArtifacts extends BootstrapFeatureArtifacts {
     nativeOrders: SimpleContractArtifact;
     feeCollectorController: SimpleContractArtifact;
     otcOrders: SimpleContractArtifact;
+    erc721Orders: SimpleContractArtifact;
+    erc1155Orders: SimpleContractArtifact;
+    erc165: SimpleContractArtifact;
 }
 
 /**
@@ -157,6 +182,9 @@ const DEFAULT_FULL_FEATURES_ARTIFACTS = {
     nativeOrders: artifacts.NativeOrdersFeature,
     feeCollectorController: artifacts.FeeCollectorController,
     otcOrders: artifacts.OtcOrdersFeature,
+    erc721Orders: ERC721OrdersFeatureArtifacts,
+    erc1155Orders: ERC1155OrdersFeatureArtifacts,
+    erc165: ERC165FeatureArtifacts,
 };
 
 /**
@@ -234,6 +262,40 @@ export async function deployFullFeaturesAsync(
                     artifacts,
                     _config.zeroExAddress,
                     _config.wethAddress,
+                )
+            ).address,
+        erc721Orders:
+            features.erc721Orders ||
+            (
+                await ERC721OrdersFeatureContract.deployFrom0xArtifactAsync(
+                    _featureArtifacts.erc721Orders as ContractArtifact,
+                    provider,
+                    txDefaults,
+                    artifacts,
+                    _config.zeroExAddress,
+                    _config.wethAddress,
+                )
+            ).address,
+        erc1155Orders:
+            features.erc1155Orders ||
+            (
+                await ERC1155OrdersFeatureContract.deployFrom0xArtifactAsync(
+                    _featureArtifacts.erc1155Orders as ContractArtifact,
+                    provider,
+                    txDefaults,
+                    artifacts,
+                    _config.zeroExAddress,
+                    _config.wethAddress,
+                )
+            ).address,
+        erc165:
+            features.erc165 ||
+            (
+                await ERC165FeatureContract.deployFrom0xArtifactAsync(
+                    _featureArtifacts.erc165 as ContractArtifact,
+                    provider,
+                    txDefaults,
+                    artifacts,
                 )
             ).address,
     };
